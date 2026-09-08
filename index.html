@@ -1085,55 +1085,60 @@ async function exportDSR(){
   // 3. Fire safety
   styleSectionRow(ws, R, LAST, '3. FIRE SAFETY EQUIPMENT'); R++;
   ws.getRow(R).values = ['Equipment Type','Location / Details','Quantity','Status','Remarks'];
-  styleHeaderRow(ws, R, 5); R++;
+  styleHeaderRow(ws, R, LAST); ws.mergeCells(R,5,R,LAST); R++;
   const fireStart = R;
   d.fireSafety.forEach((row,i)=>{
     ws.getRow(R).values = [row.equipmentType, row.location, num(row.quantity), row.status, row.remarks];
-    styleDataRow(ws, R, 5, {band:i%2===1, leftAlignCols:[2,4,5]}); R++;
+    ws.mergeCells(R,5,R,LAST);
+    styleDataRow(ws, R, LAST, {band:i%2===1, leftAlignCols:[2,4,5]}); R++;
   });
   const fireEnd = R-1;
   ws.getRow(R).values = ['TOTAL FIRE EXTINGUISHERS','', F(`SUMIF(A${fireStart}:A${fireEnd},"Fire Extinguishers",C${fireStart}:C${fireEnd})`)];
-  styleDataRow(ws, R, 5, {total:true}); R+=2;
+  ws.mergeCells(R,4,R,LAST);
+  styleDataRow(ws, R, LAST, {total:true}); R+=2;
 
   // 4. Incidents
   styleSectionRow(ws, R, LAST, '4. INCIDENTS REPORT'); R++;
   ws.getRow(R).values = ['Date & Time','Location','Nature of Incident','Guest / Staff','Description & Follow-up'];
-  styleHeaderRow(ws, R, 5); R++;
+  styleHeaderRow(ws, R, LAST); ws.mergeCells(R,5,R,LAST); R++;
   const incRows = d.incidents.length ? d.incidents : [{location:'—',nature:'—',name:'—',description:'No incidents reported'}];
   incRows.forEach((row,i)=>{
     ws.getRow(R).values = [row.dateTime||'', row.location||'', row.nature||'', row.name||'', row.description||''];
-    styleDataRow(ws, R, 5, {band:i%2===1, leftAlignCols:[2,3,5]}); R++;
+    ws.mergeCells(R,5,R,LAST);
+    styleDataRow(ws, R, LAST, {band:i%2===1, leftAlignCols:[2,3,5]}); R++;
   });
   R++;
 
   // 5. CCTV
   styleSectionRow(ws, R, LAST, '5. CCTV SURVEILLANCE SYSTEM'); R++;
   ws.getRow(R).values = ['Parameter','Old CCTV Count','Old CCTV Remarks','New CCTV Count','New CCTV Remarks'];
-  styleHeaderRow(ws, R, 5); R++;
+  styleHeaderRow(ws, R, LAST); ws.mergeCells(R,5,R,LAST); R++;
   const camRow = R;
   ws.getRow(R).values = ['Installed Cameras', num(d.cctv.old.installed), d.cctv.old.remarksInstalled, num(d.cctv.new.installed), d.cctv.new.remarksInstalled];
-  styleDataRow(ws, R, 5); R++;
+  ws.mergeCells(R,5,R,LAST); styleDataRow(ws, R, LAST); R++;
   ws.getRow(R).values = ['Currently Working', num(d.cctv.old.working), d.cctv.old.remarksWorking, num(d.cctv.new.working), d.cctv.new.remarksWorking];
-  styleDataRow(ws, R, 5, {band:true}); R++;
+  ws.mergeCells(R,5,R,LAST); styleDataRow(ws, R, LAST, {band:true}); R++;
   ws.getRow(R).values = ['Not Working', num(d.cctv.old.notWorking), d.cctv.old.remarksNotWorking, num(d.cctv.new.notWorking), d.cctv.new.remarksNotWorking];
-  styleDataRow(ws, R, 5); R++;
+  ws.mergeCells(R,5,R,LAST); styleDataRow(ws, R, LAST); R++;
   ws.getRow(R).values = ['Recording Backup', d.cctv.old.backup, '', d.cctv.new.backup, ''];
-  styleDataRow(ws, R, 5, {band:true}); R++;
+  ws.mergeCells(R,5,R,LAST); styleDataRow(ws, R, LAST, {band:true}); R++;
   ws.getRow(R).values = ['Total Installed Cameras', F(`B${camRow}+D${camRow}`)];
-  styleDataRow(ws, R, 5, {total:true}); R+=2;
+  ws.mergeCells(R,2,R,LAST); styleDataRow(ws, R, LAST, {total:true}); R+=2;
 
   // 6. Labour
   styleSectionRow(ws, R, LAST, '6. LABOUR MOVEMENT'); R++;
   ws.getRow(R).values = ['Company','Personnel Count','Labours','Staff'];
-  styleHeaderRow(ws, R, 4); R++;
+  styleHeaderRow(ws, R, LAST); ws.mergeCells(R,4,R,LAST); R++;
   const labStart = R;
   d.labour.forEach((row,i)=>{
     ws.getRow(R).values = [row.company, F(`C${R}+D${R}`), num(row.labours), num(row.staff)];
-    styleDataRow(ws, R, 4, {band:i%2===1}); R++;
+    ws.mergeCells(R,4,R,LAST);
+    styleDataRow(ws, R, LAST, {band:i%2===1}); R++;
   });
   const labEnd = R-1;
   ws.getRow(R).values = ['TOTAL', F(`SUM(B${labStart}:B${labEnd})`), F(`SUM(C${labStart}:C${labEnd})`), F(`SUM(D${labStart}:D${labEnd})`)];
-  styleDataRow(ws, R, 4, {total:true}); R+=2;
+  ws.mergeCells(R,4,R,LAST);
+  styleDataRow(ws, R, LAST, {total:true}); R+=2;
 
   // 7. Parking
   styleSectionRow(ws, R, LAST, '7. PARKING MANAGEMENT'); R++;
