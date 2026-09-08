@@ -253,14 +253,28 @@ const LABOUR_COMPANIES = ['PFMPL (RSP)','MPPL','Allubuild','ANJ','APPL','MOON WA
 const PARKING_ROWS = ['4 Wheelers Parked','2 Wheelers Parked','4/2 W Identified','4/2 W Unidentified'];
 const PARKING_COLS = ['Total Day','Total Night','Basement Day','Basement Night','Block-D Day','Block-D Night','Block-F Day','Block-F Night'];
 const PTR_ZONES = [
-  [1,'Block -A','Entry/Exit'],[2,'Block -A','Parking-1 (Inside - Right/Back)'],[3,'Block -A','Backside'],
-  [4,'Block -B, C','P1 (Out side - Indside)'],[5,'Block -B, C','Runway'],[6,'Block -B, C','Corridor'],
-  [7,'Block -B, C','Greenway'],[8,'Block -B, C','Basement Parking Way'],[9,'Block -B, C','Basement Parking Entry'],
-  [10,'Block -B, C','Basement Parking Exit'],[11,'Block-E,G','Runway-1'],[12,'Block-E,G','Runway-2'],
-  [13,'Block-E,G','Runway-3'],[14,'Block-E,G','Greenway'],[15,'Block-E,G','Crossway'],
-  [16,'Block-D','Parking Area (24 Mtr)'],[17,'Block-D','Terrace'],[18,'Block-D','DG Area'],
-  [19,'Block-D','LT Panel Room'],[20,'Block-D','Transformer Side'],[21,'Block-F','Parking Area (24 Mtr)'],
-  [22,'Block-F','Terrace'],[23,'Block-F','Driveway- All Side'],[24,'Block-F','Pump Room'],[25,'Block-F','Warehouse'],
+  [1,'Block -A','Entry/Exit And all Parking Area'],
+  [2,'Block -A','Terrace Fire Exit'],
+  [3,'Block -A','New Reception Area'],
+  [4,'Block -A','STP Area'],
+  [5,'Main Entry','AITA Main Entry'],
+  [6,'Block -B','CT PT Area'],
+  [7,'Block -B, C','B&C Connecting Bridge Area'],
+  [8,'Block -B','Terrace Fire Exit'],
+  [9,'Block -C','Terrace Fire Exit'],
+  [10,'Block-G','Garden Area'],
+  [11,'Block-E','Terrace Fire Exit'],
+  [12,'Block-D','LT Panel Room Area'],
+  [13,'Block-D','Terrace Lift Lobby'],
+  [14,'Block-D','Terrace Fire Exit'],
+  [15,'Block-F','Terrace Lift Lobby'],
+  [16,'Block-F','Terrace Fire Exit 1'],
+  [17,'Block-F','Terrace Fire Exit 2'],
+  [18,'Block-F','Warehouse'],
+  [19,'Basement-A','Driver Room Side'],
+  [20,'Basement-B','Office Area Block-B Fire Exit'],
+  [21,'Basement-C','Pump Room'],
+  [22,'Basement-DG','Staff Washroom Area'],
 ];
 
 function todayISO(){ return new Date().toISOString().slice(0,10); }
@@ -286,7 +300,7 @@ function defaultDSR(){
       old:{ installed:54, working:54, notWorking:0, backup:'7-10 Days', remarksInstalled:'Installed & Configured', remarksWorking:'All Operational', remarksNotWorking:'Nil', remarksBackup:'Average 7 Days' },
       new:{ installed:84, working:84, notWorking:0, backup:'1 Month', remarksInstalled:'Installed & Configured', remarksWorking:'All Operational', remarksNotWorking:'Nil', remarksBackup:'Up to one month' },
     },
-    labour: LABOUR_COMPANIES.map(name=>({company:name, personnel:'', labours:'', staff:''})),
+    labour: LABOUR_COMPANIES.map(name=>({company:name, labours:'', staff:''})),
     parking: PARKING_ROWS.map(()=>({ totalDay:'',totalNight:'',basementDay:'',basementNight:'',blockDDay:'',blockDNight:'',blockFDay:'',blockFNight:'',remarks:'' })),
     lighting:{ stp:'', nonTower:'', blockBC:'', blockD:'', blockEG:'', blockF:'', informTo:'', informBy:'', remarks:'' },
     summary:{ preparedBy:'', additionalInfo:'' },
@@ -344,6 +358,48 @@ function scheduleAutosave(){
   clearTimeout(saveTimer);
   saveTimer = setTimeout(()=>saveDraft(true), 900);
 }
+// If a save is pending when the user switches dates (or navigates away),
+// write it immediately under the CURRENT date before anything else can
+// reassign state.date / state.dsr / state.ptr out from under it. Without
+// this, edits made in the last ~900ms before switching dates were silently
+// lost — the delayed autosave would fire after state already pointed at
+// the new date and re-save that date's own data as a no-op.
+async function flushAutosave(){
+  if(saveTimer){
+    clearTimeout(saveTimer);
+    saveTimer = null;
+    await saveDraft(true);
+  }
+}
+// If a saved PTR draft was created under an older version of PTR_ZONES
+// (different zones/areas or a different count), rebuild its zone list from
+// the CURRENT template so the checklist always reflects the latest zones.
+// Any slot times / flags / remarks already entered are preserved for zones
+// whose Zone+Area text still matches; anything else starts blank.
+function zoneListMatchesTemplate(zones){
+  if(!Array.isArray(zones) || zones.length !== PTR_ZONES.length) return false;
+  for(let i=0;i<PTR_ZONES.length;i++){
+    if(!zones[i] || zones[i].zone !== PTR_ZONES[i][1] || zones[i].area !== PTR_ZONES[i][2]) return false;
+  }
+  return true;
+}
+function migrateShiftZones(shift){
+  if(zoneListMatchesTemplate(shift.zones)) return;
+  const old = Array.isArray(shift.zones) ? shift.zones : [];
+  shift.zones = PTR_ZONES.map(z=>{
+    const match = old.find(o=>o && o.zone===z[1] && o.area===z[2]);
+    return {
+      no: z[0], zone: z[1], area: z[2],
+      slot1: match?.slot1||'', slot2: match?.slot2||'', slot3: match?.slot3||'',
+      blocked: match?.blocked||'N', poorLighting: match?.poorLighting||'N', remarks: match?.remarks||'',
+    };
+  });
+}
+function migratePTR(ptr){
+  migrateShiftZones(ptr.morning);
+  migrateShiftZones(ptr.night);
+  return ptr;
+}
 async function loadDraft(dateISO){
   let dsr = defaultDSR(), ptr = defaultPTR();
   try{
@@ -354,6 +410,7 @@ async function loadDraft(dateISO){
     const r = await window.storage.get('ptr:'+dateISO);
     if(r && r.value) ptr = JSON.parse(r.value);
   }catch(e){}
+  ptr = migratePTR(ptr);
   state.date = dateISO;
   state.dsr = dsr;
   state.ptr = ptr;
@@ -393,9 +450,9 @@ function renderDSR(){
 
   const fireTotal = d.fireSafety.reduce((s,r)=> r.equipmentType==='Fire Extinguishers' ? s+(Number(r.quantity)||0) : s, 0);
   const camTotal = (Number(d.cctv.old.installed)||0)+(Number(d.cctv.new.installed)||0);
-  const labourTotalP = d.labour.reduce((s,r)=>s+(Number(r.personnel)||0),0);
   const labourTotalL = d.labour.reduce((s,r)=>s+(Number(r.labours)||0),0);
   const labourTotalS = d.labour.reduce((s,r)=>s+(Number(r.staff)||0),0);
+  const labourTotalP = labourTotalL + labourTotalS;
 
   const html = `
   <section class="card">
@@ -444,15 +501,15 @@ function renderDSR(){
           </tr>
           <tr>
             <td><strong>Total</strong></td>
-            <td class="computed">${(Number(mm.approvedSup)||0)+(Number(mn.approvedSup)||0)}</td>
-            <td class="computed">${(Number(mm.approvedGuards)||0)+(Number(mn.approvedGuards)||0)}</td>
-            <td class="computed">${totalApprovedM+totalApprovedN}</td>
-            <td class="computed">${(Number(mm.deployedSup)||0)+(Number(mn.deployedSup)||0)}</td>
-            <td class="computed">${(Number(mm.deployedGuards)||0)+(Number(mn.deployedGuards)||0)}</td>
-            <td class="computed">${(Number(mm.overtime)||0)+(Number(mn.overtime)||0)}</td>
-            <td class="computed">${totalDeployedM+totalDeployedN}</td>
-            <td class="computed">${supShortM+supShortN}</td>
-            <td class="computed">${guardShortM+guardShortN}</td>
+            <td class="computed" data-calc="grandApprovedSup">${(Number(mm.approvedSup)||0)+(Number(mn.approvedSup)||0)}</td>
+            <td class="computed" data-calc="grandApprovedGuards">${(Number(mm.approvedGuards)||0)+(Number(mn.approvedGuards)||0)}</td>
+            <td class="computed" data-calc="grandTotalApproved">${totalApprovedM+totalApprovedN}</td>
+            <td class="computed" data-calc="grandDeployedSup">${(Number(mm.deployedSup)||0)+(Number(mn.deployedSup)||0)}</td>
+            <td class="computed" data-calc="grandDeployedGuards">${(Number(mm.deployedGuards)||0)+(Number(mn.deployedGuards)||0)}</td>
+            <td class="computed" data-calc="grandOvertime">${(Number(mm.overtime)||0)+(Number(mn.overtime)||0)}</td>
+            <td class="computed" data-calc="grandTotalDeployed">${totalDeployedM+totalDeployedN}</td>
+            <td class="computed" data-calc="grandSupShort">${supShortM+supShortN}</td>
+            <td class="computed" data-calc="grandGuardShort">${guardShortM+guardShortN}</td>
           </tr>
         </tbody>
       </table>
@@ -532,16 +589,17 @@ function renderDSR(){
       <div class="card-head"><h2>6. Labour movement</h2></div>
       <div class="card-body">
         <table class="grid">
-          <thead><tr><th>Company</th><th>Personnel</th><th>Labours</th><th>Staff</th><th>%</th></tr></thead>
-          <tbody>
+          <thead><tr><th>Company</th><th>Personnel</th><th>Labours</th><th>Staff</th><th>%</th><th></th></tr></thead>
+          <tbody id="labourBody">
             ${d.labour.map((r,i)=>labourRow(r,i,labourTotalP)).join('')}
             <tr><td><strong>Total</strong></td>
               <td class="computed" data-calc="labourTotalP">${labourTotalP}</td>
               <td class="computed" data-calc="labourTotalL">${labourTotalL}</td>
               <td class="computed" data-calc="labourTotalS">${labourTotalS}</td>
-              <td class="computed">100%</td></tr>
+              <td class="computed">100%</td><td></td></tr>
           </tbody>
         </table>
+        <button class="add-row-btn" id="addLabourRow">+ Add company</button>
       </div>
     </section>
   </div>
@@ -605,6 +663,7 @@ function renderDSR(){
   document.getElementById('addHsdRow').onclick = ()=>{ d.hsd.push({date:'',location:'',quantity:'',time:'',challan:'',vehicle:'',vendor:''}); renderDSR(); scheduleAutosave(); };
   document.getElementById('addIncidentRow').onclick = ()=>{ d.incidents.push({dateTime:'',location:'',nature:'',name:'',description:''}); renderDSR(); scheduleAutosave(); };
   document.getElementById('addActionRow').onclick = ()=>{ d.actionRequired.push({description:'',raisedDate:'',status:'Open',remarks:''}); renderDSR(); scheduleAutosave(); };
+  document.getElementById('addLabourRow').onclick = ()=>{ d.labour.push({company:'',labours:'',staff:''}); renderDSR(); scheduleAutosave(); };
   document.getElementById('panel-dsr').querySelectorAll('[data-remove]').forEach(btn=>{
     btn.onclick = ()=>{
       const [arr,idx] = btn.getAttribute('data-remove').split(':');
@@ -617,7 +676,7 @@ function hsdRow(r,i){
   return `<tr>
     <td><input type="date" data-bind="hsd.${i}.date" value="${esc(r.date)}"></td>
     <td><input type="text" data-bind="hsd.${i}.location" value="${esc(r.location)}"></td>
-    <td><input type="number" data-bind="hsd.${i}.quantity" value="${esc(r.quantity)}"></td>
+    <td><input type="number" min="0" data-bind="hsd.${i}.quantity" value="${esc(r.quantity)}"></td>
     <td><input type="time" data-bind="hsd.${i}.time" value="${esc(r.time)}"></td>
     <td><input type="text" data-bind="hsd.${i}.challan" value="${esc(r.challan)}"></td>
     <td><input type="text" data-bind="hsd.${i}.vehicle" value="${esc(r.vehicle)}"></td>
@@ -645,13 +704,15 @@ function incidentRow(r,i){
   </tr>`;
 }
 function labourRow(r,i,total){
-  const pct = total>0 ? Math.round(((Number(r.personnel)||0)/total)*1000)/10 : 0;
+  const personnel = (Number(r.labours)||0)+(Number(r.staff)||0);
+  const pct = total>0 ? Math.round((personnel/total)*1000)/10 : 0;
   return `<tr>
-    <td>${esc(r.company)}</td>
-    <td><input type="number" min="0" data-bind="labour.${i}.personnel" value="${esc(r.personnel)}"></td>
+    <td><input type="text" data-bind="labour.${i}.company" value="${esc(r.company)}" placeholder="Company name"></td>
+    <td class="computed" data-calc="labourPersonnel.${i}">${personnel}</td>
     <td><input type="number" min="0" data-bind="labour.${i}.labours" value="${esc(r.labours)}"></td>
     <td><input type="number" min="0" data-bind="labour.${i}.staff" value="${esc(r.staff)}"></td>
-    <td class="computed">${pct}%</td>
+    <td class="computed" data-calc="labourPct.${i}">${pct}%</td>
+    <td class="row-actions"><button data-remove="labour:${i}" title="Remove row">&times;</button></td>
   </tr>`;
 }
 function parkingRow(r,i){
@@ -701,7 +762,7 @@ function renderPTR(){
   <section class="card">
     <div class="card-head"><h2>Zone checklist &mdash; ${currentPTRShift==='morning'?'Morning':'Night'} shift</h2></div>
     <div class="card-body">
-      <p class="subhead">25 fixed zones. Log check-in time for each of the 3 slots and flag any issue.</p>
+      <p class="subhead">22 fixed zones. Log check-in time for each of the 3 slots and flag any issue.</p>
       <table class="grid">
         <thead><tr>
           <th>#</th><th>Zone</th><th>Area / Sub-zone</th><th>Slot 1</th><th>Slot 2</th><th>Slot 3</th>
@@ -790,16 +851,32 @@ function liveRecomputeDSR(){
   setCalc('totalApprovedN',totalApprovedN); setCalc('totalDeployedN',totalDeployedN);
   setCalc('supShortN',supShortN); setCalc('guardShortN',guardShortN);
 
+  // grand total row (morning + night combined)
+  setCalc('grandApprovedSup', (Number(mm.approvedSup)||0)+(Number(mn.approvedSup)||0));
+  setCalc('grandApprovedGuards', (Number(mm.approvedGuards)||0)+(Number(mn.approvedGuards)||0));
+  setCalc('grandTotalApproved', totalApprovedM+totalApprovedN);
+  setCalc('grandDeployedSup', (Number(mm.deployedSup)||0)+(Number(mn.deployedSup)||0));
+  setCalc('grandDeployedGuards', (Number(mm.deployedGuards)||0)+(Number(mn.deployedGuards)||0));
+  setCalc('grandOvertime', (Number(mm.overtime)||0)+(Number(mn.overtime)||0));
+  setCalc('grandTotalDeployed', totalDeployedM+totalDeployedN);
+  setCalc('grandSupShort', supShortM+supShortN);
+  setCalc('grandGuardShort', guardShortM+guardShortN);
+
   const fireTotal = d.fireSafety.reduce((s,r)=> r.equipmentType==='Fire Extinguishers' ? s+(Number(r.quantity)||0) : s, 0);
   setCalc('fireTotal', fireTotal);
   const camTotal = (Number(d.cctv.old.installed)||0)+(Number(d.cctv.new.installed)||0);
   setCalc('camTotal', camTotal);
-  const labourTotalP = d.labour.reduce((s,r)=>s+(Number(r.personnel)||0),0);
   const labourTotalL = d.labour.reduce((s,r)=>s+(Number(r.labours)||0),0);
   const labourTotalS = d.labour.reduce((s,r)=>s+(Number(r.staff)||0),0);
+  const labourTotalP = labourTotalL + labourTotalS;
   setCalc('labourTotalP', labourTotalP); setCalc('labourTotalL', labourTotalL); setCalc('labourTotalS', labourTotalS);
-  // refresh per-row labour %
-  document.querySelectorAll('#panel-dsr table.grid tbody tr').forEach(()=>{}); // no-op guard
+  // refresh per-row personnel (labours+staff) and % , now that the true total is known
+  d.labour.forEach((r,i)=>{
+    const personnel = (Number(r.labours)||0)+(Number(r.staff)||0);
+    const pct = labourTotalP>0 ? Math.round((personnel/labourTotalP)*1000)/10 : 0;
+    setCalc('labourPersonnel.'+i, personnel);
+    setCalc('labourPct.'+i, pct+'%');
+  });
 }
 function setCalc(name, value){
   const el = document.querySelector(`[data-calc="${name}"]`);
@@ -807,7 +884,7 @@ function setCalc(name, value){
 }
 function esc(v){
   if(v===undefined || v===null) return '';
-  return String(v).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+  return String(v).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;');
 }
 function wrapTablesForScroll(container){
   container.querySelectorAll('table.grid').forEach(tbl=>{
@@ -841,11 +918,22 @@ document.getElementById('tab-ptr').onclick = ()=>{
   document.getElementById('panel-ptr').classList.add('active');
   document.getElementById('panel-dsr').classList.remove('active');
 };
-document.getElementById('reportDate').addEventListener('change', (e)=>{
-  loadDraft(e.target.value);
+document.getElementById('reportDate').addEventListener('change', async (e)=>{
+  const newDate = e.target.value;
+  await flushAutosave();
+  loadDraft(newDate);
 });
-document.getElementById('loadPrevious').addEventListener('change', (e)=>{
-  if(e.target.value) loadDraft(e.target.value);
+document.getElementById('loadPrevious').addEventListener('change', async (e)=>{
+  const newDate = e.target.value;
+  if(newDate){
+    await flushAutosave();
+    loadDraft(newDate);
+  }
+});
+window.addEventListener('beforeunload', ()=>{
+  // Best-effort: browsers may not wait for async work here, but this
+  // gives the pending autosave a chance to land before the tab closes.
+  if(saveTimer){ clearTimeout(saveTimer); saveDraft(true); }
 });
 document.getElementById('saveDraftBtn').onclick = ()=>saveDraft(false);
 document.getElementById('exportBtn').onclick = async ()=>{
@@ -1040,7 +1128,7 @@ async function exportDSR(){
   styleHeaderRow(ws, R, 4); R++;
   const labStart = R;
   d.labour.forEach((row,i)=>{
-    ws.getRow(R).values = [row.company, num(row.personnel), num(row.labours), num(row.staff)];
+    ws.getRow(R).values = [row.company, F(`C${R}+D${R}`), num(row.labours), num(row.staff)];
     styleDataRow(ws, R, 4, {band:i%2===1}); R++;
   });
   const labEnd = R-1;
