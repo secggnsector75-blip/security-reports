@@ -3,110 +3,51 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sector 75 Security Reports</title>
+<title>Sector 75 Daily Status Report</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
 <style>
   :root{
-    --ink:#1b2430;
-    --ink-soft:#4a5568;
-    --line:#d8dce3;
-    --line-soft:#e8eaef;
-    --paper:#f6f7f9;
-    --panel:#ffffff;
-    --brand:#0f4c5c;
-    --brand-deep:#0a3540;
-    --amber:#c17a1f;
-    --amber-soft:#fbeed9;
-    --ok:#2f7d4f;
-    --warn:#b3431e;
-    --radius:6px;
-    font-family: "Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    --ink:#1b2430; --ink-soft:#4a5568; --line:#d8dce3; --line-soft:#e8eaef;
+    --paper:#f6f7f9; --panel:#ffffff; --brand:#0f4c5c; --brand-deep:#0a3540;
+    --amber:#c17a1f; --amber-soft:#fbeed9; --warn:#b3431e; --radius:6px;
   }
   *{box-sizing:border-box;}
-  body{
-    margin:0; background:var(--paper); color:var(--ink);
-    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  }
+  body{ margin:0; background:var(--paper); color:var(--ink);
+    font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
   header.top{
     background:var(--brand-deep); color:#eef3f2; padding:18px 28px;
     display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:14px;
     border-bottom:3px solid var(--amber);
   }
-  header.top .titleblock h1{
-    margin:0; font-size:19px; letter-spacing:.2px; font-weight:700;
-  }
-  header.top .titleblock p{
-    margin:2px 0 0; font-size:12.5px; color:#b9d2cf;
-  }
+  header.top h1{ margin:0; font-size:19px; letter-spacing:.2px; font-weight:700; }
+  header.top p{ margin:2px 0 0; font-size:12.5px; color:#b9d2cf; }
   .top-controls{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
   .top-controls label{ font-size:12px; color:#cfe3e0; margin-right:4px; }
   .top-controls input[type=date], .top-controls select{
     padding:7px 9px; border-radius:5px; border:1px solid #1c5b6c; background:#0d4453; color:#fff; font-size:13px;
   }
-  nav.tabs{
-    display:flex; gap:0; background:var(--brand); padding:0 28px;
-  }
-  nav.tabs button{
-    background:transparent; border:none; color:#d7e8e6; padding:12px 22px; font-size:14px;
-    cursor:pointer; border-bottom:3px solid transparent; font-weight:600; letter-spacing:.2px;
-  }
-  nav.tabs button.active{ color:#fff; border-bottom-color:var(--amber); }
   main{ max-width:1180px; margin:24px auto 90px; padding:0 20px; }
-  .panel{ display:none; }
-  .panel.active{ display:block; }
-  section.card{
-    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
-    margin-bottom:18px; overflow:hidden;
-  }
-  section.card > .card-head{
-    background:#eef3f3; padding:11px 16px; border-bottom:1px solid var(--line);
-    display:flex; align-items:center; justify-content:space-between;
-  }
-  section.card > .card-head h2{
-    margin:0; font-size:13.5px; text-transform:uppercase; letter-spacing:.6px; color:var(--brand-deep); font-weight:700;
-  }
+  section.card{ background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); margin-bottom:18px; overflow:hidden; }
+  section.card > .card-head{ background:#eef3f3; padding:11px 16px; border-bottom:1px solid var(--line); }
+  section.card > .card-head h2{ margin:0; font-size:13.5px; text-transform:uppercase; letter-spacing:.6px; color:var(--brand-deep); font-weight:700; }
   section.card > .card-body{ padding:16px; }
   .field-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:12px 16px; }
   .field{ display:flex; flex-direction:column; gap:4px; }
   .field label{ font-size:11.5px; color:var(--ink-soft); font-weight:600; }
-  .field input, .field select, .field textarea{
-    padding:7px 9px; border:1px solid var(--line); border-radius:5px; font-size:13.5px; background:#fff; color:var(--ink);
-    font-family:inherit;
-  }
-  .field textarea{ resize:vertical; min-height:38px; }
-  .field input:focus, .field select:focus, .field textarea:focus{ outline:2px solid var(--brand); outline-offset:0; border-color:var(--brand); }
+  .field input{ padding:7px 9px; border:1px solid var(--line); border-radius:5px; font-size:13.5px; background:#fff; color:var(--ink); font-family:inherit; }
+  .field input:focus{ outline:2px solid var(--brand); outline-offset:0; border-color:var(--brand); }
   table.grid{ width:100%; border-collapse:collapse; font-size:12.8px; min-width:640px; }
   .table-scroll{ overflow-x:auto; -webkit-overflow-scrolling:touch; border-radius:4px; }
-  table.grid th{
-    background:#f0f2f5; color:var(--ink-soft); text-align:left; padding:7px 8px; border:1px solid var(--line-soft);
-    font-weight:700; white-space:nowrap;
-  }
+  table.grid th{ background:#f0f2f5; color:var(--ink-soft); text-align:left; padding:7px 8px; border:1px solid var(--line-soft); font-weight:700; white-space:nowrap; }
   table.grid td{ padding:4px 6px; border:1px solid var(--line-soft); vertical-align:middle; }
-  table.grid td input, table.grid td select{
-    width:100%; border:1px solid transparent; background:transparent; padding:5px 4px; font-size:12.8px; border-radius:4px;
-  }
+  table.grid td input, table.grid td select{ width:100%; border:1px solid transparent; background:transparent; padding:5px 4px; font-size:12.8px; border-radius:4px; }
   table.grid td input:focus, table.grid td select:focus{ background:#fff; border-color:var(--brand); outline:none; }
   table.grid tr:hover td{ background:#fafbfc; }
   .computed{ font-weight:700; color:var(--brand-deep); }
   .row-actions{ text-align:center; width:36px; }
-  .row-actions button{
-    background:none; border:none; color:var(--warn); font-size:16px; cursor:pointer; line-height:1;
-  }
-  .add-row-btn{
-    margin-top:10px; background:#eef3f3; border:1px dashed var(--brand); color:var(--brand-deep);
-    padding:7px 12px; border-radius:5px; font-size:12.5px; cursor:pointer; font-weight:600;
-  }
+  .row-actions button{ background:none; border:none; color:var(--warn); font-size:16px; cursor:pointer; line-height:1; }
+  .add-row-btn{ margin-top:10px; background:#eef3f3; border:1px dashed var(--brand); color:var(--brand-deep); padding:7px 12px; border-radius:5px; font-size:12.5px; cursor:pointer; font-weight:600; }
   .add-row-btn:hover{ background:var(--amber-soft); border-color:var(--amber); }
-  .subhead{ font-size:11.5px; color:var(--ink-soft); margin:0 0 10px; }
-  .shift-switch{ display:flex; gap:8px; margin-bottom:14px; }
-  .shift-switch button{
-    padding:7px 16px; border-radius:20px; border:1px solid var(--line); background:#fff; font-size:12.8px; font-weight:600;
-    cursor:pointer; color:var(--ink-soft);
-  }
-  .shift-switch button.active{ background:var(--brand); color:#fff; border-color:var(--brand); }
-  .flag-cell{ text-align:center; }
-  .flag-cell select{ text-align:center; }
-  .flag-y{ background:#fdeceb !important; }
   footer.bar{
     position:fixed; bottom:0; left:0; right:0; background:var(--panel); border-top:1px solid var(--line);
     padding:12px 24px; display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap;
@@ -115,28 +56,20 @@
   .bar-status{ font-size:12px; color:var(--ink-soft); }
   .bar-note{ font-size:10.5px; color:#9aa3b2; margin-top:2px; }
   .bar-actions{ display:flex; gap:10px; }
-  button.primary{
-    background:var(--brand); color:#fff; border:none; padding:10px 20px; border-radius:5px; font-size:13.5px;
-    font-weight:700; cursor:pointer; letter-spacing:.2px;
-  }
+  button.primary{ background:var(--brand); color:#fff; border:none; padding:10px 20px; border-radius:5px; font-size:13.5px; font-weight:700; cursor:pointer; }
   button.primary:hover{ background:var(--brand-deep); }
-  button.secondary{
-    background:#fff; color:var(--brand-deep); border:1px solid var(--brand); padding:10px 16px; border-radius:5px;
-    font-size:13.5px; font-weight:600; cursor:pointer;
-  }
+  button.secondary{ background:#fff; color:var(--brand-deep); border:1px solid var(--brand); padding:10px 16px; border-radius:5px; font-size:13.5px; font-weight:600; cursor:pointer; }
   button.secondary:hover{ background:#eef3f3; }
   .note{ font-size:11.5px; color:#8a93a3; margin-top:8px; }
   .two-col{ display:grid; grid-template-columns:1fr 1fr; gap:18px; }
   @media (max-width:760px){
     .two-col{ grid-template-columns:1fr; }
     header.top{ padding:14px 16px; }
-    header.top .titleblock h1{ font-size:16px; }
-    header.top .titleblock p{ display:none; }
+    header.top h1{ font-size:16px; }
+    header.top p{ display:none; }
     .top-controls{ width:100%; }
     .top-controls > div{ flex:1 1 auto; }
     .top-controls input[type=date], .top-controls select{ width:100%; }
-    nav.tabs{ padding:0 10px; }
-    nav.tabs button{ padding:11px 12px; font-size:13px; flex:1; }
     main{ margin:16px auto 130px; padding:0 10px; }
     section.card > .card-body{ padding:12px; }
     .field-grid{ grid-template-columns:1fr 1fr; gap:10px 12px; }
@@ -146,17 +79,15 @@
     .bar-actions button{ width:100%; }
     table.grid{ font-size:12px; }
   }
-  @media (max-width:420px){
-    .field-grid{ grid-template-columns:1fr; }
-  }
+  @media (max-width:420px){ .field-grid{ grid-template-columns:1fr; } }
 </style>
 </head>
 <body>
 
 <header class="top">
-  <div class="titleblock">
-    <h1>Sector 75 &mdash; Security Reports</h1>
-    <p>Daily Status Report &amp; Patrol Tour Round, digitised</p>
+  <div>
+    <h1>Sector 75 &mdash; Daily Status Report</h1>
+    <p>Security Daily Status Report, digitised</p>
   </div>
   <div class="top-controls">
     <div>
@@ -170,14 +101,8 @@
   </div>
 </header>
 
-<nav class="tabs">
-  <button id="tab-dsr" class="active">Daily Status Report</button>
-  <button id="tab-ptr">Patrol Tour Round</button>
-</nav>
-
 <main>
-  <div id="panel-dsr" class="panel active"></div>
-  <div id="panel-ptr" class="panel"></div>
+  <div id="panel-dsr"></div>
 </main>
 
 <footer class="bar">
@@ -187,18 +112,12 @@
   </div>
   <div class="bar-actions">
     <button class="secondary" id="saveDraftBtn">Save draft</button>
-    <button class="primary" id="exportBtn">Export current report to Excel</button>
+    <button class="primary" id="exportBtn">Export report to Excel</button>
   </div>
 </footer>
 
 <script>
-/* ---------------------------------------------------------------------
-   Storage polyfill — this app is designed to run both as a Claude
-   artifact (window.storage provided by the host) and as a fully
-   standalone HTML file (emailed, hosted, opened from disk). If no
-   host storage API is present, fall back to the browser's own
-   localStorage so drafts still save on that device.
---------------------------------------------------------------------- */
+/* Storage polyfill: uses host window.storage if present, else localStorage */
 if (!window.storage) {
   window.storage = {
     async get(key){
@@ -206,14 +125,8 @@ if (!window.storage) {
       if(raw === null) throw new Error('not found');
       return { key, value: raw, shared:false };
     },
-    async set(key, value){
-      localStorage.setItem('kvs:'+key, value);
-      return { key, value, shared:false };
-    },
-    async delete(key){
-      localStorage.removeItem('kvs:'+key);
-      return { key, deleted:true, shared:false };
-    },
+    async set(key, value){ localStorage.setItem('kvs:'+key, value); return { key, value, shared:false }; },
+    async delete(key){ localStorage.removeItem('kvs:'+key); return { key, deleted:true, shared:false }; },
     async list(prefix){
       const keys = [];
       for(let i=0;i<localStorage.length;i++){
@@ -229,13 +142,12 @@ if (!window.storage) {
 }
 </script>
 <script>
-/* ---------------------------------------------------------------------
-   Static template data (mirrors the original DSR / PTR workbooks)
---------------------------------------------------------------------- */
+/* ---------------- Static template data ---------------- */
+// Fire safety quantities are STATIC. To change them, edit only this list.
 const FIRE_SAFETY_DEFAULTS = [
   ['Fire Alarm Panel','BMS Room',1,'Ops','-'],
-  ['FHC - Ground Level','Total Cabinets',16,'Ops','-'],
-  ['FHC - Ground Level','Hose Pipes',32,'Available','-'],
+  ['FHC - Ground Level','Total Cabinets',53,'Ops','-'],
+  ['FHC - Ground Level','Hose Pipes',74,'Available','-'],
   ['FHC - Ground Level','Nozzles',2,'Available on Main Gate','-'],
   ['FHC - Basement','Total Cabinets',5,'Ops','-'],
   ['FHC - Basement','Hose Pipes',10,'Available','-'],
@@ -252,30 +164,6 @@ const FIRE_SAFETY_DEFAULTS = [
 const LABOUR_COMPANIES = ['PFMPL (RSP)','MPPL','Allubuild','ANJ','APPL','MOON WALK'];
 const PARKING_ROWS = ['4 Wheelers Parked','2 Wheelers Parked','4/2 W Identified','4/2 W Unidentified'];
 const PARKING_COLS = ['Total Day','Total Night','Basement Day','Basement Night','Block-D Day','Block-D Night','Block-F Day','Block-F Night'];
-const PTR_ZONES = [
-  [1,'Block -A','Entry/Exit And all Parking Area'],
-  [2,'Block -A','Terrace Fire Exit'],
-  [3,'Block -A','New Reception Area'],
-  [4,'Block -A','STP Area'],
-  [5,'Main Entry','AITA Main Entry'],
-  [6,'Block -B','CT PT Area'],
-  [7,'Block -B, C','B&C Connecting Bridge Area'],
-  [8,'Block -B','Terrace Fire Exit'],
-  [9,'Block -C','Terrace Fire Exit'],
-  [10,'Block-G','Garden Area'],
-  [11,'Block-E','Terrace Fire Exit'],
-  [12,'Block-D','LT Panel Room Area'],
-  [13,'Block-D','Terrace Lift Lobby'],
-  [14,'Block-D','Terrace Fire Exit'],
-  [15,'Block-F','Terrace Lift Lobby'],
-  [16,'Block-F','Terrace Fire Exit 1'],
-  [17,'Block-F','Terrace Fire Exit 2'],
-  [18,'Block-F','Warehouse'],
-  [19,'Basement-A','Driver Room Side'],
-  [20,'Basement-B','Office Area Block-B Fire Exit'],
-  [21,'Basement-C','Pump Room'],
-  [22,'Basement-DG','Staff Washroom Area'],
-];
 
 function todayISO(){ return new Date().toISOString().slice(0,10); }
 function fmtDisplayDate(iso){
@@ -283,9 +171,6 @@ function fmtDisplayDate(iso){
   const [y,m,d]=iso.split('-'); return `${d}-${m}-${y}`;
 }
 
-/* ---------------------------------------------------------------------
-   Default state factories
---------------------------------------------------------------------- */
 function defaultDSR(){
   return {
     reportPeriod:'',
@@ -300,36 +185,18 @@ function defaultDSR(){
       old:{ installed:54, working:54, notWorking:0, backup:'7-10 Days', remarksInstalled:'Installed & Configured', remarksWorking:'All Operational', remarksNotWorking:'Nil', remarksBackup:'Average 7 Days' },
       new:{ installed:84, working:84, notWorking:0, backup:'1 Month', remarksInstalled:'Installed & Configured', remarksWorking:'All Operational', remarksNotWorking:'Nil', remarksBackup:'Up to one month' },
     },
-    labour: LABOUR_COMPANIES.map(name=>({company:name, labours:'', staff:''})),
-    parking: PARKING_ROWS.map(()=>({ totalDay:'',totalNight:'',basementDay:'',basementNight:'',blockDDay:'',blockDNight:'',blockFDay:'',blockFNight:'',remarks:'' })),
+    labour: LABOUR_COMPANIES.map(name=>({company:name, personnel:'', labours:'', staff:''})),
+    parking: PARKING_ROWS.map(()=>({ basementDay:'',basementNight:'',blockDDay:'',blockDNight:'',blockFDay:'',blockFNight:'',remarks:'' })),
     lighting:{ stp:'', nonTower:'', blockBC:'', blockD:'', blockEG:'', blockF:'', informTo:'', informBy:'', remarks:'' },
     summary:{ preparedBy:'', additionalInfo:'' },
     actionRequired: [],
   };
 }
-function defaultPTRShift(){
-  return {
-    ptrName:'',
-    verifiedBy:'',
-    updatedBy:'',
-    zones: PTR_ZONES.map(z=>({ no:z[0], zone:z[1], area:z[2], slot1:'', slot2:'', slot3:'', blocked:'N', poorLighting:'N', remarks:'' })),
-  };
-}
-function defaultPTR(){
-  return { morning: defaultPTRShift(), night: defaultPTRShift() };
-}
 
-/* ---------------------------------------------------------------------
-   App state
---------------------------------------------------------------------- */
-let state = { date: todayISO(), dsr: defaultDSR(), ptr: defaultPTR() };
-let currentTab = 'dsr';
-let currentPTRShift = 'morning';
+/* ---------------- App state ---------------- */
+let state = { date: todayISO(), dsr: defaultDSR() };
 let saveTimer = null;
 
-function getPath(obj, path){
-  return path.split('.').reduce((o,k)=> (o==null?o:o[isNaN(k)?k:Number(k)]), obj);
-}
 function setPath(obj, path, value){
   const keys = path.split('.');
   let o = obj;
@@ -341,13 +208,10 @@ function setPath(obj, path, value){
   o[isNaN(lastKey)?lastKey:Number(lastKey)] = value;
 }
 
-/* ---------------------------------------------------------------------
-   Storage
---------------------------------------------------------------------- */
+/* ---------------- Storage ---------------- */
 async function saveDraft(silent){
   try{
     await window.storage.set('dsr:'+state.date, JSON.stringify(state.dsr));
-    await window.storage.set('ptr:'+state.date, JSON.stringify(state.ptr));
     document.getElementById('statusMsg').textContent = 'Saved draft for ' + fmtDisplayDate(state.date) + ' at ' + new Date().toLocaleTimeString();
     if(!silent) refreshLoadList();
   }catch(e){
@@ -358,62 +222,20 @@ function scheduleAutosave(){
   clearTimeout(saveTimer);
   saveTimer = setTimeout(()=>saveDraft(true), 900);
 }
-// If a save is pending when the user switches dates (or navigates away),
-// write it immediately under the CURRENT date before anything else can
-// reassign state.date / state.dsr / state.ptr out from under it. Without
-// this, edits made in the last ~900ms before switching dates were silently
-// lost — the delayed autosave would fire after state already pointed at
-// the new date and re-save that date's own data as a no-op.
-async function flushAutosave(){
-  if(saveTimer){
-    clearTimeout(saveTimer);
-    saveTimer = null;
-    await saveDraft(true);
-  }
-}
-// If a saved PTR draft was created under an older version of PTR_ZONES
-// (different zones/areas or a different count), rebuild its zone list from
-// the CURRENT template so the checklist always reflects the latest zones.
-// Any slot times / flags / remarks already entered are preserved for zones
-// whose Zone+Area text still matches; anything else starts blank.
-function zoneListMatchesTemplate(zones){
-  if(!Array.isArray(zones) || zones.length !== PTR_ZONES.length) return false;
-  for(let i=0;i<PTR_ZONES.length;i++){
-    if(!zones[i] || zones[i].zone !== PTR_ZONES[i][1] || zones[i].area !== PTR_ZONES[i][2]) return false;
-  }
-  return true;
-}
-function migrateShiftZones(shift){
-  if(zoneListMatchesTemplate(shift.zones)) return;
-  const old = Array.isArray(shift.zones) ? shift.zones : [];
-  shift.zones = PTR_ZONES.map(z=>{
-    const match = old.find(o=>o && o.zone===z[1] && o.area===z[2]);
-    return {
-      no: z[0], zone: z[1], area: z[2],
-      slot1: match?.slot1||'', slot2: match?.slot2||'', slot3: match?.slot3||'',
-      blocked: match?.blocked||'N', poorLighting: match?.poorLighting||'N', remarks: match?.remarks||'',
-    };
-  });
-}
-function migratePTR(ptr){
-  migrateShiftZones(ptr.morning);
-  migrateShiftZones(ptr.night);
-  return ptr;
-}
 async function loadDraft(dateISO){
-  let dsr = defaultDSR(), ptr = defaultPTR();
+  let dsr = defaultDSR();
   try{
     const r = await window.storage.get('dsr:'+dateISO);
     if(r && r.value) dsr = JSON.parse(r.value);
   }catch(e){}
-  try{
-    const r = await window.storage.get('ptr:'+dateISO);
-    if(r && r.value) ptr = JSON.parse(r.value);
-  }catch(e){}
-  ptr = migratePTR(ptr);
+  // Fire safety qty is static: always take it from the template defaults
+  dsr.fireSafety = FIRE_SAFETY_DEFAULTS.map((def,i)=>({
+    equipmentType:def[0], location:def[1], quantity:def[2],
+    status:  (dsr.fireSafety && dsr.fireSafety[i]) ? dsr.fireSafety[i].status  : def[3],
+    remarks: (dsr.fireSafety && dsr.fireSafety[i]) ? dsr.fireSafety[i].remarks : def[4],
+  }));
   state.date = dateISO;
   state.dsr = dsr;
-  state.ptr = ptr;
   renderAll();
   document.getElementById('statusMsg').textContent = 'Loaded ' + fmtDisplayDate(dateISO) + '.';
 }
@@ -433,26 +255,25 @@ async function refreshLoadList(){
   }catch(e){}
 }
 
-/* ---------------------------------------------------------------------
-   Rendering — DSR
---------------------------------------------------------------------- */
+/* ---------------- Rendering ---------------- */
 function renderDSR(){
   const d = state.dsr;
+  const n = v => Number(v)||0;
   const mm = d.manpower.morning, mn = d.manpower.night;
-  const totalApprovedM = (Number(mm.approvedSup)||0)+(Number(mm.approvedGuards)||0);
-  const totalApprovedN = (Number(mn.approvedSup)||0)+(Number(mn.approvedGuards)||0);
-  const totalDeployedM = (Number(mm.deployedSup)||0)+(Number(mm.deployedGuards)||0);
-  const totalDeployedN = (Number(mn.deployedSup)||0)+(Number(mn.deployedGuards)||0);
-  const supShortM = Math.max((Number(mm.approvedSup)||0)-(Number(mm.deployedSup)||0),0);
-  const guardShortM = Math.max((Number(mm.approvedGuards)||0)-(Number(mm.deployedGuards)||0),0);
-  const supShortN = Math.max((Number(mn.approvedSup)||0)-(Number(mn.deployedSup)||0),0);
-  const guardShortN = Math.max((Number(mn.approvedGuards)||0)-(Number(mn.deployedGuards)||0),0);
+  const totalApprovedM = n(mm.approvedSup)+n(mm.approvedGuards);
+  const totalApprovedN = n(mn.approvedSup)+n(mn.approvedGuards);
+  const totalDeployedM = n(mm.deployedSup)+n(mm.deployedGuards);
+  const totalDeployedN = n(mn.deployedSup)+n(mn.deployedGuards);
+  const supShortM = Math.max(n(mm.approvedSup)-n(mm.deployedSup),0);
+  const guardShortM = Math.max(n(mm.approvedGuards)-n(mm.deployedGuards),0);
+  const supShortN = Math.max(n(mn.approvedSup)-n(mn.deployedSup),0);
+  const guardShortN = Math.max(n(mn.approvedGuards)-n(mn.deployedGuards),0);
 
-  const fireTotal = d.fireSafety.reduce((s,r)=> r.equipmentType==='Fire Extinguishers' ? s+(Number(r.quantity)||0) : s, 0);
-  const camTotal = (Number(d.cctv.old.installed)||0)+(Number(d.cctv.new.installed)||0);
-  const labourTotalL = d.labour.reduce((s,r)=>s+(Number(r.labours)||0),0);
-  const labourTotalS = d.labour.reduce((s,r)=>s+(Number(r.staff)||0),0);
-  const labourTotalP = labourTotalL + labourTotalS;
+  const fireTotal = d.fireSafety.reduce((s,r)=> r.equipmentType==='Fire Extinguishers' ? s+n(r.quantity) : s, 0);
+  const camTotal = n(d.cctv.old.installed)+n(d.cctv.new.installed);
+  const labourTotalP = d.labour.reduce((s,r)=>s+n(r.personnel),0);
+  const labourTotalL = d.labour.reduce((s,r)=>s+n(r.labours),0);
+  const labourTotalS = d.labour.reduce((s,r)=>s+n(r.staff),0);
 
   const html = `
   <section class="card">
@@ -501,15 +322,15 @@ function renderDSR(){
           </tr>
           <tr>
             <td><strong>Total</strong></td>
-            <td class="computed" data-calc="grandApprovedSup">${(Number(mm.approvedSup)||0)+(Number(mn.approvedSup)||0)}</td>
-            <td class="computed" data-calc="grandApprovedGuards">${(Number(mm.approvedGuards)||0)+(Number(mn.approvedGuards)||0)}</td>
-            <td class="computed" data-calc="grandTotalApproved">${totalApprovedM+totalApprovedN}</td>
-            <td class="computed" data-calc="grandDeployedSup">${(Number(mm.deployedSup)||0)+(Number(mn.deployedSup)||0)}</td>
-            <td class="computed" data-calc="grandDeployedGuards">${(Number(mm.deployedGuards)||0)+(Number(mn.deployedGuards)||0)}</td>
-            <td class="computed" data-calc="grandOvertime">${(Number(mm.overtime)||0)+(Number(mn.overtime)||0)}</td>
-            <td class="computed" data-calc="grandTotalDeployed">${totalDeployedM+totalDeployedN}</td>
-            <td class="computed" data-calc="grandSupShort">${supShortM+supShortN}</td>
-            <td class="computed" data-calc="grandGuardShort">${guardShortM+guardShortN}</td>
+            <td class="computed">${n(mm.approvedSup)+n(mn.approvedSup)}</td>
+            <td class="computed">${n(mm.approvedGuards)+n(mn.approvedGuards)}</td>
+            <td class="computed">${totalApprovedM+totalApprovedN}</td>
+            <td class="computed">${n(mm.deployedSup)+n(mn.deployedSup)}</td>
+            <td class="computed">${n(mm.deployedGuards)+n(mn.deployedGuards)}</td>
+            <td class="computed">${n(mm.overtime)+n(mn.overtime)}</td>
+            <td class="computed">${totalDeployedM+totalDeployedN}</td>
+            <td class="computed">${supShortM+supShortN}</td>
+            <td class="computed">${guardShortM+guardShortN}</td>
           </tr>
         </tbody>
       </table>
@@ -521,9 +342,7 @@ function renderDSR(){
     <div class="card-body">
       <table class="grid">
         <thead><tr><th>Date</th><th>Location / Details</th><th>Quantity</th><th>Time</th><th>Challan / Invoice No.</th><th>Vehicle No.</th><th>Vendor Name</th><th></th></tr></thead>
-        <tbody id="hsdBody">
-          ${d.hsd.map((r,i)=>hsdRow(r,i)).join('')}
-        </tbody>
+        <tbody>${d.hsd.map((r,i)=>hsdRow(r,i)).join('')}</tbody>
       </table>
       <button class="add-row-btn" id="addHsdRow">+ Add HSD entry</button>
     </div>
@@ -549,9 +368,7 @@ function renderDSR(){
       <div class="card-body">
         <table class="grid">
           <thead><tr><th>Date &amp; time</th><th>Location</th><th>Nature</th><th>Guest / staff</th><th>Description &amp; follow-up</th><th></th></tr></thead>
-          <tbody id="incidentBody">
-            ${d.incidents.map((r,i)=>incidentRow(r,i)).join('')}
-          </tbody>
+          <tbody>${d.incidents.map((r,i)=>incidentRow(r,i)).join('')}</tbody>
         </table>
         <button class="add-row-btn" id="addIncidentRow">+ Add incident</button>
         ${d.incidents.length===0 ? '<p class="note">No incidents logged for this period.</p>' : ''}
@@ -590,13 +407,13 @@ function renderDSR(){
       <div class="card-body">
         <table class="grid">
           <thead><tr><th>Company</th><th>Personnel</th><th>Labours</th><th>Staff</th><th>%</th><th></th></tr></thead>
-          <tbody id="labourBody">
+          <tbody>
             ${d.labour.map((r,i)=>labourRow(r,i,labourTotalP)).join('')}
             <tr><td><strong>Total</strong></td>
               <td class="computed" data-calc="labourTotalP">${labourTotalP}</td>
               <td class="computed" data-calc="labourTotalL">${labourTotalL}</td>
               <td class="computed" data-calc="labourTotalS">${labourTotalS}</td>
-              <td class="computed">100%</td><td></td></tr>
+              <td class="computed">${labourTotalP>0?'100%':'0%'}</td><td></td></tr>
           </tbody>
         </table>
         <button class="add-row-btn" id="addLabourRow">+ Add company</button>
@@ -609,9 +426,7 @@ function renderDSR(){
     <div class="card-body">
       <table class="grid">
         <thead><tr><th>Parking Details</th>${PARKING_COLS.map(c=>`<th>${c}</th>`).join('')}<th>Remarks</th></tr></thead>
-        <tbody>
-          ${d.parking.map((r,i)=>parkingRow(r,i)).join('')}
-        </tbody>
+        <tbody>${d.parking.map((r,i)=>parkingRow(r,i)).join('')}</tbody>
       </table>
     </div>
   </section>
@@ -648,23 +463,22 @@ function renderDSR(){
     <div class="card-body">
       <table class="grid">
         <thead><tr><th>Complaint description with location</th><th>Raised date</th><th>Status</th><th>Remarks</th><th></th></tr></thead>
-        <tbody id="actionBody">
-          ${d.actionRequired.map((r,i)=>actionRow(r,i)).join('')}
-        </tbody>
+        <tbody>${d.actionRequired.map((r,i)=>actionRow(r,i)).join('')}</tbody>
       </table>
       <button class="add-row-btn" id="addActionRow">+ Add action item</button>
       ${d.actionRequired.length===0 ? '<p class="note">Nothing outstanding.</p>' : ''}
     </div>
   </section>
   `;
-  document.getElementById('panel-dsr').innerHTML = html;
-  wrapTablesForScroll(document.getElementById('panel-dsr'));
-  bindInputs(document.getElementById('panel-dsr'), 'dsr', renderDSR);
+  const panel = document.getElementById('panel-dsr');
+  panel.innerHTML = html;
+  wrapTablesForScroll(panel);
+  bindInputs(panel, 'dsr', renderDSR);
   document.getElementById('addHsdRow').onclick = ()=>{ d.hsd.push({date:'',location:'',quantity:'',time:'',challan:'',vehicle:'',vendor:''}); renderDSR(); scheduleAutosave(); };
   document.getElementById('addIncidentRow').onclick = ()=>{ d.incidents.push({dateTime:'',location:'',nature:'',name:'',description:''}); renderDSR(); scheduleAutosave(); };
+  document.getElementById('addLabourRow').onclick = ()=>{ d.labour.push({company:'',personnel:'',labours:'',staff:''}); renderDSR(); scheduleAutosave(); };
   document.getElementById('addActionRow').onclick = ()=>{ d.actionRequired.push({description:'',raisedDate:'',status:'Open',remarks:''}); renderDSR(); scheduleAutosave(); };
-  document.getElementById('addLabourRow').onclick = ()=>{ d.labour.push({company:'',labours:'',staff:''}); renderDSR(); scheduleAutosave(); };
-  document.getElementById('panel-dsr').querySelectorAll('[data-remove]').forEach(btn=>{
+  panel.querySelectorAll('[data-remove]').forEach(btn=>{
     btn.onclick = ()=>{
       const [arr,idx] = btn.getAttribute('data-remove').split(':');
       d[arr].splice(Number(idx),1);
@@ -676,7 +490,7 @@ function hsdRow(r,i){
   return `<tr>
     <td><input type="date" data-bind="hsd.${i}.date" value="${esc(r.date)}"></td>
     <td><input type="text" data-bind="hsd.${i}.location" value="${esc(r.location)}"></td>
-    <td><input type="number" min="0" data-bind="hsd.${i}.quantity" value="${esc(r.quantity)}"></td>
+    <td><input type="number" data-bind="hsd.${i}.quantity" value="${esc(r.quantity)}"></td>
     <td><input type="time" data-bind="hsd.${i}.time" value="${esc(r.time)}"></td>
     <td><input type="text" data-bind="hsd.${i}.challan" value="${esc(r.challan)}"></td>
     <td><input type="text" data-bind="hsd.${i}.vehicle" value="${esc(r.vehicle)}"></td>
@@ -688,7 +502,7 @@ function fireRow(r,i){
   return `<tr>
     <td>${esc(r.equipmentType)}</td>
     <td>${esc(r.location)}</td>
-    <td><input type="number" min="0" data-bind="fireSafety.${i}.quantity" value="${esc(r.quantity)}"></td>
+    <td>${esc(r.quantity)}</td>
     <td><input type="text" data-bind="fireSafety.${i}.status" value="${esc(r.status)}"></td>
     <td><input type="text" data-bind="fireSafety.${i}.remarks" value="${esc(r.remarks)}"></td>
   </tr>`;
@@ -704,22 +518,26 @@ function incidentRow(r,i){
   </tr>`;
 }
 function labourRow(r,i,total){
-  const personnel = (Number(r.labours)||0)+(Number(r.staff)||0);
-  const pct = total>0 ? Math.round((personnel/total)*1000)/10 : 0;
+  const pct = total>0 ? Math.round(((Number(r.personnel)||0)/total)*1000)/10 : 0;
   return `<tr>
-    <td><input type="text" data-bind="labour.${i}.company" value="${esc(r.company)}" placeholder="Company name"></td>
-    <td class="computed" data-calc="labourPersonnel.${i}">${personnel}</td>
+    <td><input type="text" placeholder="Company name" data-bind="labour.${i}.company" value="${esc(r.company)}"></td>
+    <td><input type="number" min="0" data-bind="labour.${i}.personnel" value="${esc(r.personnel)}"></td>
     <td><input type="number" min="0" data-bind="labour.${i}.labours" value="${esc(r.labours)}"></td>
     <td><input type="number" min="0" data-bind="labour.${i}.staff" value="${esc(r.staff)}"></td>
-    <td class="computed" data-calc="labourPct.${i}">${pct}%</td>
-    <td class="row-actions"><button data-remove="labour:${i}" title="Remove row">&times;</button></td>
+    <td class="computed">${pct}%</td>
+    <td class="row-actions"><button data-remove="labour:${i}" title="Remove company">&times;</button></td>
   </tr>`;
 }
 function parkingRow(r,i){
-  const keys = ['totalDay','totalNight','basementDay','basementNight','blockDDay','blockDNight','blockFDay','blockFNight'];
+  const n = v => Number(v)||0;
+  const totalDay   = n(r.basementDay)   + n(r.blockDDay)   + n(r.blockFDay);
+  const totalNight = n(r.basementNight) + n(r.blockDNight) + n(r.blockFNight);
+  const inputKeys = ['basementDay','basementNight','blockDDay','blockDNight','blockFDay','blockFNight'];
   return `<tr>
     <td>${esc(PARKING_ROWS[i])}</td>
-    ${keys.map(k=>`<td><input type="number" min="0" data-bind="parking.${i}.${k}" value="${esc(r[k])}"></td>`).join('')}
+    <td class="computed" data-calc="parkTotalDay${i}">${totalDay}</td>
+    <td class="computed" data-calc="parkTotalNight${i}">${totalNight}</td>
+    ${inputKeys.map(k=>`<td><input type="number" min="0" data-bind="parking.${i}.${k}" value="${esc(r[k])}"></td>`).join('')}
     <td><input type="text" data-bind="parking.${i}.remarks" value="${esc(r.remarks)}"></td>
   </tr>`;
 }
@@ -735,101 +553,13 @@ function actionRow(r,i){
   </tr>`;
 }
 
-/* ---------------------------------------------------------------------
-   Rendering — PTR
---------------------------------------------------------------------- */
-function renderPTR(){
-  const shift = state.ptr[currentPTRShift];
-  const html = `
-  <section class="card">
-    <div class="card-head"><h2>Patrol details</h2></div>
-    <div class="card-body">
-      <div class="shift-switch">
-        <button id="shiftMorning" class="${currentPTRShift==='morning'?'active':''}">Morning shift</button>
-        <button id="shiftNight" class="${currentPTRShift==='night'?'active':''}">Night shift</button>
-      </div>
-      <div class="field-grid">
-        <div class="field"><label>PTR Name (patrol officer)</label>
-          <input type="text" data-bind-ptr="ptrName" value="${esc(shift.ptrName)}"></div>
-        <div class="field"><label>Verified by (name)</label>
-          <input type="text" data-bind-ptr="verifiedBy" value="${esc(shift.verifiedBy)}"></div>
-        <div class="field"><label>Updated by (Safety &amp; Surveillance officer)</label>
-          <input type="text" data-bind-ptr="updatedBy" value="${esc(shift.updatedBy)}"></div>
-      </div>
-    </div>
-  </section>
-
-  <section class="card">
-    <div class="card-head"><h2>Zone checklist &mdash; ${currentPTRShift==='morning'?'Morning':'Night'} shift</h2></div>
-    <div class="card-body">
-      <p class="subhead">22 fixed zones. Log check-in time for each of the 3 slots and flag any issue.</p>
-      <table class="grid">
-        <thead><tr>
-          <th>#</th><th>Zone</th><th>Area / Sub-zone</th><th>Slot 1</th><th>Slot 2</th><th>Slot 3</th>
-          <th>Blocked access</th><th>Poor lighting</th><th>Remarks / issues</th>
-        </tr></thead>
-        <tbody id="ptrBody">
-          ${shift.zones.map((z,i)=>ptrZoneRow(z,i)).join('')}
-        </tbody>
-      </table>
-    </div>
-  </section>
-  `;
-  document.getElementById('panel-ptr').innerHTML = html;
-  wrapTablesForScroll(document.getElementById('panel-ptr'));
-  document.getElementById('shiftMorning').onclick = ()=>{ currentPTRShift='morning'; renderPTR(); };
-  document.getElementById('shiftNight').onclick = ()=>{ currentPTRShift='night'; renderPTR(); };
-  bindPTRInputs();
-}
-function ptrZoneRow(z,i){
-  return `<tr>
-    <td>${z.no}</td>
-    <td>${esc(z.zone)}</td>
-    <td>${esc(z.area)}</td>
-    <td><input type="time" data-bind-ptr="zones.${i}.slot1" value="${esc(z.slot1)}"></td>
-    <td><input type="time" data-bind-ptr="zones.${i}.slot2" value="${esc(z.slot2)}"></td>
-    <td><input type="time" data-bind-ptr="zones.${i}.slot3" value="${esc(z.slot3)}"></td>
-    <td class="flag-cell ${z.blocked==='Y'?'flag-y':''}">
-      <select data-bind-ptr="zones.${i}.blocked">
-        <option ${z.blocked==='N'?'selected':''}>N</option><option ${z.blocked==='Y'?'selected':''}>Y</option>
-      </select></td>
-    <td class="flag-cell ${z.poorLighting==='Y'?'flag-y':''}">
-      <select data-bind-ptr="zones.${i}.poorLighting">
-        <option ${z.poorLighting==='N'?'selected':''}>N</option><option ${z.poorLighting==='Y'?'selected':''}>Y</option>
-      </select></td>
-    <td><input type="text" data-bind-ptr="zones.${i}.remarks" value="${esc(z.remarks)}"></td>
-  </tr>`;
-}
-function bindPTRInputs(){
-  const shift = state.ptr[currentPTRShift];
-  document.getElementById('panel-ptr').querySelectorAll('[data-bind-ptr]').forEach(el=>{
-    el.addEventListener('input', ()=>{
-      setPath(shift, el.getAttribute('data-bind-ptr'), el.value);
-      if(el.tagName==='SELECT'){
-        const td = el.closest('td');
-        if(td && td.classList.contains('flag-cell')){
-          td.classList.toggle('flag-y', el.value==='Y');
-        }
-      }
-      scheduleAutosave();
-    });
-  });
-}
-
-/* ---------------------------------------------------------------------
-   Generic binding + recompute helper for DSR (re-renders whole panel
-   on change so all computed totals stay correct; inputs restore focus
-   via cursor position where practical)
---------------------------------------------------------------------- */
+/* ---------------- Binding + live recompute ---------------- */
 function bindInputs(container, section, rerenderFn){
   container.querySelectorAll('[data-bind]').forEach(el=>{
     const evt = (el.tagName==='SELECT') ? 'change' : 'input';
     el.addEventListener(evt, ()=>{
-      const target = state[section];
-      setPath(target, el.getAttribute('data-bind'), el.value);
+      setPath(state[section], el.getAttribute('data-bind'), el.value);
       scheduleAutosave();
-      // Only fully re-render on blur-safe events to avoid focus loss while typing numbers;
-      // computed fields are refreshed live via a lightweight recompute pass.
       liveRecomputeDSR();
     });
     el.addEventListener('change', ()=>{ rerenderFn(); });
@@ -837,45 +567,24 @@ function bindInputs(container, section, rerenderFn){
 }
 function liveRecomputeDSR(){
   const d = state.dsr;
+  const n = v => Number(v)||0;
   const mm = d.manpower.morning, mn = d.manpower.night;
-  const totalApprovedM = (Number(mm.approvedSup)||0)+(Number(mm.approvedGuards)||0);
-  const totalApprovedN = (Number(mn.approvedSup)||0)+(Number(mn.approvedGuards)||0);
-  const totalDeployedM = (Number(mm.deployedSup)||0)+(Number(mm.deployedGuards)||0);
-  const totalDeployedN = (Number(mn.deployedSup)||0)+(Number(mn.deployedGuards)||0);
-  const supShortM = Math.max((Number(mm.approvedSup)||0)-(Number(mm.deployedSup)||0),0);
-  const guardShortM = Math.max((Number(mm.approvedGuards)||0)-(Number(mm.deployedGuards)||0),0);
-  const supShortN = Math.max((Number(mn.approvedSup)||0)-(Number(mn.deployedSup)||0),0);
-  const guardShortN = Math.max((Number(mn.approvedGuards)||0)-(Number(mn.deployedGuards)||0),0);
-  setCalc('totalApprovedM',totalApprovedM); setCalc('totalDeployedM',totalDeployedM);
-  setCalc('supShortM',supShortM); setCalc('guardShortM',guardShortM);
-  setCalc('totalApprovedN',totalApprovedN); setCalc('totalDeployedN',totalDeployedN);
-  setCalc('supShortN',supShortN); setCalc('guardShortN',guardShortN);
-
-  // grand total row (morning + night combined)
-  setCalc('grandApprovedSup', (Number(mm.approvedSup)||0)+(Number(mn.approvedSup)||0));
-  setCalc('grandApprovedGuards', (Number(mm.approvedGuards)||0)+(Number(mn.approvedGuards)||0));
-  setCalc('grandTotalApproved', totalApprovedM+totalApprovedN);
-  setCalc('grandDeployedSup', (Number(mm.deployedSup)||0)+(Number(mn.deployedSup)||0));
-  setCalc('grandDeployedGuards', (Number(mm.deployedGuards)||0)+(Number(mn.deployedGuards)||0));
-  setCalc('grandOvertime', (Number(mm.overtime)||0)+(Number(mn.overtime)||0));
-  setCalc('grandTotalDeployed', totalDeployedM+totalDeployedN);
-  setCalc('grandSupShort', supShortM+supShortN);
-  setCalc('grandGuardShort', guardShortM+guardShortN);
-
-  const fireTotal = d.fireSafety.reduce((s,r)=> r.equipmentType==='Fire Extinguishers' ? s+(Number(r.quantity)||0) : s, 0);
-  setCalc('fireTotal', fireTotal);
-  const camTotal = (Number(d.cctv.old.installed)||0)+(Number(d.cctv.new.installed)||0);
-  setCalc('camTotal', camTotal);
-  const labourTotalL = d.labour.reduce((s,r)=>s+(Number(r.labours)||0),0);
-  const labourTotalS = d.labour.reduce((s,r)=>s+(Number(r.staff)||0),0);
-  const labourTotalP = labourTotalL + labourTotalS;
-  setCalc('labourTotalP', labourTotalP); setCalc('labourTotalL', labourTotalL); setCalc('labourTotalS', labourTotalS);
-  // refresh per-row personnel (labours+staff) and % , now that the true total is known
-  d.labour.forEach((r,i)=>{
-    const personnel = (Number(r.labours)||0)+(Number(r.staff)||0);
-    const pct = labourTotalP>0 ? Math.round((personnel/labourTotalP)*1000)/10 : 0;
-    setCalc('labourPersonnel.'+i, personnel);
-    setCalc('labourPct.'+i, pct+'%');
+  setCalc('totalApprovedM', n(mm.approvedSup)+n(mm.approvedGuards));
+  setCalc('totalApprovedN', n(mn.approvedSup)+n(mn.approvedGuards));
+  setCalc('totalDeployedM', n(mm.deployedSup)+n(mm.deployedGuards));
+  setCalc('totalDeployedN', n(mn.deployedSup)+n(mn.deployedGuards));
+  setCalc('supShortM', Math.max(n(mm.approvedSup)-n(mm.deployedSup),0));
+  setCalc('guardShortM', Math.max(n(mm.approvedGuards)-n(mm.deployedGuards),0));
+  setCalc('supShortN', Math.max(n(mn.approvedSup)-n(mn.deployedSup),0));
+  setCalc('guardShortN', Math.max(n(mn.approvedGuards)-n(mn.deployedGuards),0));
+  setCalc('fireTotal', d.fireSafety.reduce((s,r)=> r.equipmentType==='Fire Extinguishers' ? s+n(r.quantity) : s, 0));
+  setCalc('camTotal', n(d.cctv.old.installed)+n(d.cctv.new.installed));
+  setCalc('labourTotalP', d.labour.reduce((s,r)=>s+n(r.personnel),0));
+  setCalc('labourTotalL', d.labour.reduce((s,r)=>s+n(r.labours),0));
+  setCalc('labourTotalS', d.labour.reduce((s,r)=>s+n(r.staff),0));
+  d.parking.forEach((r,i)=>{
+    setCalc('parkTotalDay'+i,   n(r.basementDay)   + n(r.blockDDay)   + n(r.blockFDay));
+    setCalc('parkTotalNight'+i, n(r.basementNight) + n(r.blockDNight) + n(r.blockFNight));
   });
 }
 function setCalc(name, value){
@@ -884,7 +593,7 @@ function setCalc(name, value){
 }
 function esc(v){
   if(v===undefined || v===null) return '';
-  return String(v).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;');
+  return String(v).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
 }
 function wrapTablesForScroll(container){
   container.querySelectorAll('table.grid').forEach(tbl=>{
@@ -896,70 +605,32 @@ function wrapTablesForScroll(container){
   });
 }
 
-/* ---------------------------------------------------------------------
-   Tabs
---------------------------------------------------------------------- */
+/* ---------------- Top-level events ---------------- */
 function renderAll(){
   document.getElementById('reportDate').value = state.date;
   renderDSR();
-  renderPTR();
 }
-document.getElementById('tab-dsr').onclick = ()=>{
-  currentTab='dsr';
-  document.getElementById('tab-dsr').classList.add('active');
-  document.getElementById('tab-ptr').classList.remove('active');
-  document.getElementById('panel-dsr').classList.add('active');
-  document.getElementById('panel-ptr').classList.remove('active');
-};
-document.getElementById('tab-ptr').onclick = ()=>{
-  currentTab='ptr';
-  document.getElementById('tab-ptr').classList.add('active');
-  document.getElementById('tab-dsr').classList.remove('active');
-  document.getElementById('panel-ptr').classList.add('active');
-  document.getElementById('panel-dsr').classList.remove('active');
-};
-document.getElementById('reportDate').addEventListener('change', async (e)=>{
-  const newDate = e.target.value;
-  await flushAutosave();
-  loadDraft(newDate);
-});
-document.getElementById('loadPrevious').addEventListener('change', async (e)=>{
-  const newDate = e.target.value;
-  if(newDate){
-    await flushAutosave();
-    loadDraft(newDate);
-  }
-});
-window.addEventListener('beforeunload', ()=>{
-  // Best-effort: browsers may not wait for async work here, but this
-  // gives the pending autosave a chance to land before the tab closes.
-  if(saveTimer){ clearTimeout(saveTimer); saveDraft(true); }
-});
+document.getElementById('reportDate').addEventListener('change', e=>{ loadDraft(e.target.value); });
+document.getElementById('loadPrevious').addEventListener('change', e=>{ if(e.target.value) loadDraft(e.target.value); });
 document.getElementById('saveDraftBtn').onclick = ()=>saveDraft(false);
 document.getElementById('exportBtn').onclick = async ()=>{
   document.getElementById('statusMsg').textContent = 'Building formatted Excel file…';
-  try{
-    if(currentTab==='dsr') await exportDSR(); else await exportPTR();
-  }catch(e){
-    document.getElementById('statusMsg').textContent = 'Export failed: ' + e;
-  }
+  try{ await exportDSR(); }
+  catch(e){ document.getElementById('statusMsg').textContent = 'Export failed: ' + e; }
 };
 
-/* ---------------------------------------------------------------------
-   Excel export (ExcelJS — full style support: fills, fonts, borders)
---------------------------------------------------------------------- */
+/* ---------------- Excel export (ExcelJS) ---------------- */
 const THEME = {
-  titleFill: 'FF1F4E78',   titleFont: 'FFFFFFFF',
-  sectionFill: 'FF1F4E78', sectionFont: 'FFFFFFFF',
-  headerFill: 'FF5B9BD5',  headerFont: 'FFFFFFFF',
-  totalLabelFill: 'FFF2F2F2', totalValueFill: 'FF92D050', totalFont: 'FF1B2430',
-  bandFill: 'FFF7F9FB',
-  flagFill: 'FFFBE1DE',    flagFont: 'FFB3431E',
-  border: { style:'thin', color:{argb:'FF000000'} },
-  headFontName: 'Calibri',
-  dataFontName: 'Aptos Narrow',
+  titleFill:'FF1F4E78', titleFont:'FFFFFFFF',
+  sectionFill:'FF1F4E78', sectionFont:'FFFFFFFF',
+  headerFill:'FF5B9BD5', headerFont:'FFFFFFFF',
+  totalLabelFill:'FFF2F2F2', totalValueFill:'FF92D050', totalFont:'FF1B2430',
+  bandFill:'FFF7F9FB',
+  border:{ style:'thin', color:{argb:'FF000000'} },
+  headFontName:'Calibri', dataFontName:'Aptos Narrow',
 };
 function thinBorder(){ return { top:THEME.border, left:THEME.border, bottom:THEME.border, right:THEME.border }; }
+function solid(argb){ return { type:'pattern', pattern:'solid', fgColor:{argb} }; }
 
 function styleTitleRow(ws, rowNum, lastCol){
   ws.mergeCells(rowNum,1,rowNum,lastCol);
@@ -967,12 +638,10 @@ function styleTitleRow(ws, rowNum, lastCol){
   row.height = 28;
   const cell = row.getCell(1);
   cell.font = { name:THEME.headFontName, bold:true, size:16, color:{argb:THEME.titleFont} };
-  cell.fill = { type:'pattern', pattern:'solid', fgColor:{argb:THEME.titleFill} };
+  cell.fill = solid(THEME.titleFill);
   cell.alignment = { vertical:'middle', horizontal:'center' };
   cell.border = thinBorder();
-  for(let c=1;c<=lastCol;c++){
-    row.getCell(c).fill = { type:'pattern', pattern:'solid', fgColor:{argb:THEME.titleFill} };
-  }
+  for(let c=1;c<=lastCol;c++) row.getCell(c).fill = solid(THEME.titleFill);
 }
 function styleSectionRow(ws, rowNum, lastCol, text){
   ws.mergeCells(rowNum,1,rowNum,lastCol);
@@ -981,12 +650,10 @@ function styleSectionRow(ws, rowNum, lastCol, text){
   const cell = row.getCell(1);
   cell.value = text;
   cell.font = { name:THEME.headFontName, bold:true, size:11, color:{argb:THEME.sectionFont} };
-  cell.fill = { type:'pattern', pattern:'solid', fgColor:{argb:THEME.sectionFill} };
+  cell.fill = solid(THEME.sectionFill);
   cell.alignment = { vertical:'middle', horizontal:'center' };
   cell.border = thinBorder();
-  for(let c=1;c<=lastCol;c++){
-    row.getCell(c).fill = { type:'pattern', pattern:'solid', fgColor:{argb:THEME.sectionFill} };
-  }
+  for(let c=1;c<=lastCol;c++) row.getCell(c).fill = solid(THEME.sectionFill);
 }
 function styleHeaderRow(ws, rowNum, lastCol){
   const row = ws.getRow(rowNum);
@@ -994,7 +661,7 @@ function styleHeaderRow(ws, rowNum, lastCol){
   for(let c=1;c<=lastCol;c++){
     const cell = row.getCell(c);
     cell.font = { name:THEME.headFontName, bold:true, size:11, color:{argb:THEME.headerFont} };
-    cell.fill = { type:'pattern', pattern:'solid', fgColor:{argb:THEME.headerFill} };
+    cell.fill = solid(THEME.headerFill);
     cell.border = thinBorder();
     cell.alignment = { vertical:'middle', horizontal:'center', wrapText:true };
   }
@@ -1008,21 +675,12 @@ function styleDataRow(ws, rowNum, lastCol, opts){
     cell.border = thinBorder();
     cell.font = Object.assign({ name:THEME.dataFontName, size:11 }, cell.font||{});
     cell.alignment = { vertical:'middle', horizontal: leftCols.includes(c) ? 'left' : 'center', wrapText:true };
-    if(opts.band) cell.fill = { type:'pattern', pattern:'solid', fgColor:{argb:THEME.bandFill} };
+    if(opts.band) cell.fill = solid(THEME.bandFill);
     if(opts.bold) cell.font = Object.assign({}, cell.font, {bold:true});
     if(opts.total){
-      const isLabel = (c===1);
-      cell.fill = { type:'pattern', pattern:'solid', fgColor:{argb: isLabel ? THEME.totalLabelFill : THEME.totalValueFill} };
+      cell.fill = solid(c===1 ? THEME.totalLabelFill : THEME.totalValueFill);
       cell.font = Object.assign({}, cell.font, { bold:true, color:{argb:THEME.totalFont} });
     }
-  }
-}
-function flagCell(ws, rowNum, colNum, value){
-  const cell = ws.getRow(rowNum).getCell(colNum);
-  cell.alignment = { vertical:'middle', horizontal:'center' };
-  if(value === 'Y'){
-    cell.fill = { type:'pattern', pattern:'solid', fgColor:{argb:THEME.flagFill} };
-    cell.font = { bold:true, color:{argb:THEME.flagFont} };
   }
 }
 async function downloadWorkbook(wb, filename){
@@ -1034,7 +692,7 @@ async function downloadWorkbook(wb, filename){
   document.body.appendChild(a); a.click(); document.body.removeChild(a);
   URL.revokeObjectURL(url);
 }
-function num(v){ const n = Number(v); return isNaN(n) || v===''||v===null||v===undefined ? null : n; }
+function num(v){ const x = Number(v); return isNaN(x) || v===''||v===null||v===undefined ? null : x; }
 function F(formula){ return { formula }; }
 
 async function exportDSR(){
@@ -1058,8 +716,8 @@ async function exportDSR(){
 
   // 1. Manpower
   styleSectionRow(ws, R, LAST, '1. SECURITY MANPOWER'); R++;
-  const mHdr = ['Shift','Approved Sup','Approved Guards','Total Approved','Deployed Sup','Deployed Guards','Overtime','Total Deployed','Sup Shortfall','Guard Shortfall'];
-  ws.getRow(R).values = mHdr; styleHeaderRow(ws, R, LAST); R++;
+  ws.getRow(R).values = ['Shift','Approved Sup','Approved Guards','Total Approved','Deployed Sup','Deployed Guards','Overtime','Total Deployed','Sup Shortfall','Guard Shortfall'];
+  styleHeaderRow(ws, R, LAST); R++;
   const mm = d.manpower.morning, mn = d.manpower.night;
   const mRow = R;
   ws.getRow(R).values = ['Morning', num(mm.approvedSup), num(mm.approvedGuards), F(`B${R}+C${R}`), num(mm.deployedSup), num(mm.deployedGuards), num(mm.overtime), F(`E${R}+F${R}`), F(`MAX(B${R}-E${R},0)`), F(`MAX(C${R}-F${R},0)`)];
@@ -1067,7 +725,7 @@ async function exportDSR(){
   const nRow = R;
   ws.getRow(R).values = ['Night', num(mn.approvedSup), num(mn.approvedGuards), F(`B${R}+C${R}`), num(mn.deployedSup), num(mn.deployedGuards), num(mn.overtime), F(`E${R}+F${R}`), F(`MAX(B${R}-E${R},0)`), F(`MAX(C${R}-F${R},0)`)];
   styleDataRow(ws, R, LAST, {band:true}); R++;
-  ws.getRow(R).values = ['Total', F(`SUM(B${mRow}:B${nRow})`),F(`SUM(C${mRow}:C${nRow})`),F(`SUM(D${mRow}:D${nRow})`),F(`SUM(E${mRow}:E${nRow})`),F(`SUM(F${mRow}:F${nRow})`),F(`SUM(G${mRow}:G${nRow})`),F(`SUM(H${mRow}:H${nRow})`),F(`SUM(I${mRow}:I${nRow})`),F(`SUM(J${mRow}:J${nRow})`)];
+  ws.getRow(R).values = ['Total', ...'BCDEFGHIJ'.split('').map(c=>F(`SUM(${c}${mRow}:${c}${nRow})`))];
   styleDataRow(ws, R, LAST, {total:true}); R+=2;
 
   // 2. HSD
@@ -1085,68 +743,70 @@ async function exportDSR(){
   // 3. Fire safety
   styleSectionRow(ws, R, LAST, '3. FIRE SAFETY EQUIPMENT'); R++;
   ws.getRow(R).values = ['Equipment Type','Location / Details','Quantity','Status','Remarks'];
-  styleHeaderRow(ws, R, LAST); ws.mergeCells(R,5,R,LAST); R++;
+  styleHeaderRow(ws, R, 5); R++;
   const fireStart = R;
   d.fireSafety.forEach((row,i)=>{
     ws.getRow(R).values = [row.equipmentType, row.location, num(row.quantity), row.status, row.remarks];
-    ws.mergeCells(R,5,R,LAST);
-    styleDataRow(ws, R, LAST, {band:i%2===1, leftAlignCols:[2,4,5]}); R++;
+    styleDataRow(ws, R, 5, {band:i%2===1, leftAlignCols:[2,4,5]}); R++;
   });
   const fireEnd = R-1;
   ws.getRow(R).values = ['TOTAL FIRE EXTINGUISHERS','', F(`SUMIF(A${fireStart}:A${fireEnd},"Fire Extinguishers",C${fireStart}:C${fireEnd})`)];
-  ws.mergeCells(R,4,R,LAST);
-  styleDataRow(ws, R, LAST, {total:true}); R+=2;
+  styleDataRow(ws, R, 5, {total:true}); R+=2;
 
   // 4. Incidents
   styleSectionRow(ws, R, LAST, '4. INCIDENTS REPORT'); R++;
   ws.getRow(R).values = ['Date & Time','Location','Nature of Incident','Guest / Staff','Description & Follow-up'];
-  styleHeaderRow(ws, R, LAST); ws.mergeCells(R,5,R,LAST); R++;
+  styleHeaderRow(ws, R, 5); R++;
   const incRows = d.incidents.length ? d.incidents : [{location:'—',nature:'—',name:'—',description:'No incidents reported'}];
   incRows.forEach((row,i)=>{
     ws.getRow(R).values = [row.dateTime||'', row.location||'', row.nature||'', row.name||'', row.description||''];
-    ws.mergeCells(R,5,R,LAST);
-    styleDataRow(ws, R, LAST, {band:i%2===1, leftAlignCols:[2,3,5]}); R++;
+    styleDataRow(ws, R, 5, {band:i%2===1, leftAlignCols:[2,3,5]}); R++;
   });
   R++;
 
   // 5. CCTV
   styleSectionRow(ws, R, LAST, '5. CCTV SURVEILLANCE SYSTEM'); R++;
   ws.getRow(R).values = ['Parameter','Old CCTV Count','Old CCTV Remarks','New CCTV Count','New CCTV Remarks'];
-  styleHeaderRow(ws, R, LAST); ws.mergeCells(R,5,R,LAST); R++;
+  styleHeaderRow(ws, R, 5); R++;
   const camRow = R;
   ws.getRow(R).values = ['Installed Cameras', num(d.cctv.old.installed), d.cctv.old.remarksInstalled, num(d.cctv.new.installed), d.cctv.new.remarksInstalled];
-  ws.mergeCells(R,5,R,LAST); styleDataRow(ws, R, LAST); R++;
+  styleDataRow(ws, R, 5); R++;
   ws.getRow(R).values = ['Currently Working', num(d.cctv.old.working), d.cctv.old.remarksWorking, num(d.cctv.new.working), d.cctv.new.remarksWorking];
-  ws.mergeCells(R,5,R,LAST); styleDataRow(ws, R, LAST, {band:true}); R++;
+  styleDataRow(ws, R, 5, {band:true}); R++;
   ws.getRow(R).values = ['Not Working', num(d.cctv.old.notWorking), d.cctv.old.remarksNotWorking, num(d.cctv.new.notWorking), d.cctv.new.remarksNotWorking];
-  ws.mergeCells(R,5,R,LAST); styleDataRow(ws, R, LAST); R++;
+  styleDataRow(ws, R, 5); R++;
   ws.getRow(R).values = ['Recording Backup', d.cctv.old.backup, '', d.cctv.new.backup, ''];
-  ws.mergeCells(R,5,R,LAST); styleDataRow(ws, R, LAST, {band:true}); R++;
+  styleDataRow(ws, R, 5, {band:true}); R++;
   ws.getRow(R).values = ['Total Installed Cameras', F(`B${camRow}+D${camRow}`)];
-  ws.mergeCells(R,2,R,LAST); styleDataRow(ws, R, LAST, {total:true}); R+=2;
+  styleDataRow(ws, R, 5, {total:true}); R+=2;
 
   // 6. Labour
   styleSectionRow(ws, R, LAST, '6. LABOUR MOVEMENT'); R++;
   ws.getRow(R).values = ['Company','Personnel Count','Labours','Staff'];
-  styleHeaderRow(ws, R, LAST); ws.mergeCells(R,4,R,LAST); R++;
+  styleHeaderRow(ws, R, 4); R++;
   const labStart = R;
   d.labour.forEach((row,i)=>{
-    ws.getRow(R).values = [row.company, F(`C${R}+D${R}`), num(row.labours), num(row.staff)];
-    ws.mergeCells(R,4,R,LAST);
-    styleDataRow(ws, R, LAST, {band:i%2===1}); R++;
+    ws.getRow(R).values = [row.company, num(row.personnel), num(row.labours), num(row.staff)];
+    styleDataRow(ws, R, 4, {band:i%2===1}); R++;
   });
   const labEnd = R-1;
   ws.getRow(R).values = ['TOTAL', F(`SUM(B${labStart}:B${labEnd})`), F(`SUM(C${labStart}:C${labEnd})`), F(`SUM(D${labStart}:D${labEnd})`)];
-  ws.mergeCells(R,4,R,LAST);
-  styleDataRow(ws, R, LAST, {total:true}); R+=2;
+  styleDataRow(ws, R, 4, {total:true}); R+=2;
 
-  // 7. Parking
+  // 7. Parking (Total Day / Night are formulas)
   styleSectionRow(ws, R, LAST, '7. PARKING MANAGEMENT'); R++;
   ws.getRow(R).values = ['Parking Details', ...PARKING_COLS, 'Remarks'];
   styleHeaderRow(ws, R, LAST); R++;
-  const pKeys = ['totalDay','totalNight','basementDay','basementNight','blockDDay','blockDNight','blockFDay','blockFNight'];
   d.parking.forEach((row,i)=>{
-    ws.getRow(R).values = [PARKING_ROWS[i], ...pKeys.map(k=>num(row[k])), row.remarks];
+    ws.getRow(R).values = [
+      PARKING_ROWS[i],
+      F(`D${R}+F${R}+H${R}`),   // Total Day
+      F(`E${R}+G${R}+I${R}`),   // Total Night
+      num(row.basementDay), num(row.basementNight),
+      num(row.blockDDay),   num(row.blockDNight),
+      num(row.blockFDay),   num(row.blockFNight),
+      row.remarks
+    ];
     styleDataRow(ws, R, LAST, {band:i%2===1, leftAlignCols:[1,10]}); R++;
   });
   R++;
@@ -1160,16 +820,15 @@ async function exportDSR(){
 
   // Summary
   styleSectionRow(ws, R, LAST, 'REPORT SUMMARY'); R++;
-  ws.getRow(R).values = ['Report Prepared By', d.summary.preparedBy]; ws.mergeCells(R,2,R,LAST); styleDataRow(ws,R,LAST,{bold:false, leftAlignCols:[2]}); R++;
+  ws.getRow(R).values = ['Report Prepared By', d.summary.preparedBy]; ws.mergeCells(R,2,R,LAST); styleDataRow(ws,R,LAST,{leftAlignCols:[2]}); R++;
   ws.getRow(R).values = ['Report Date', fmtDisplayDate(state.date)]; ws.mergeCells(R,2,R,LAST); styleDataRow(ws,R,LAST,{band:true, leftAlignCols:[2]}); R++;
   ws.getRow(R).values = ['Additional Information', d.summary.additionalInfo]; ws.mergeCells(R,2,R,LAST); styleDataRow(ws,R,LAST,{leftAlignCols:[2]}); R+=2;
-  ws.getColumn(1).eachCell?.(()=>{});
   [R-4,R-3,R-2].forEach(rn=>{ ws.getRow(rn).getCell(1).font = {bold:true}; });
 
   // Action required
   styleSectionRow(ws, R, LAST, 'ACTION REQUIRED'); R++;
   ws.getRow(R).values = ['Complaint Description With Location','','','','','','Raised Date','Status','Remarks'];
-  ws.mergeCells(R,1,R,6); ws.mergeCells(R,7,R,7); styleHeaderRow(ws, R, LAST); R++;
+  ws.mergeCells(R,1,R,6); styleHeaderRow(ws, R, LAST); R++;
   const actRows = d.actionRequired.length ? d.actionRequired : [{description:'Nothing outstanding'}];
   actRows.forEach((row,i)=>{
     ws.getRow(R).values = [row.description||'','','','','','', row.raisedDate||'', row.status||'', row.remarks||''];
@@ -1182,56 +841,7 @@ async function exportDSR(){
   document.getElementById('statusMsg').textContent = 'Exported DSR for ' + fmtDisplayDate(state.date) + '.';
 }
 
-async function exportPTR(){
-  const wb = new ExcelJS.Workbook();
-  const ws = wb.addWorksheet('PTR', { views:[{ showGridLines:false }] });
-  ws.pageSetup = { orientation:'landscape', fitToPage:true, fitToWidth:1, fitToHeight:0, margins:{left:0.3,right:0.3,top:0.4,bottom:0.4,header:0.2,footer:0.2} };
-  ws.columns = [8,15,28,15,15,15,15,15,30].map(w=>({width:w}));
-  const LAST = 9;
-  let R = 1;
-
-  function shiftBlock(shiftKey, label){
-    const s = state.ptr[shiftKey];
-    ws.getCell(R,1).value = 'SECTOR-75, GGN — PATROL TOUR ROUND (' + label.toUpperCase() + ' SHIFT)';
-    styleTitleRow(ws, R, LAST);
-    ws.getRow(R).getCell(1).font = { name:'Aptos Narrow', bold:true, size:18, color:{argb:THEME.titleFont} };
-    R++;
-
-    ws.getRow(R).values = ['Date :', fmtDisplayDate(state.date), 'Site Name : Sector 75','', 'PTR Name :-', s.ptrName || '','','',''];
-    ws.mergeCells(R,3,R,4);
-    styleDataRow(ws, R, LAST, {bold:true, leftAlignCols:[1,2,3,5,6]});
-    ws.getRow(R).eachCell(c=>{ c.font = { name:'Aptos Narrow', bold:true, size:12 }; });
-    R++;
-    R++;
-
-    ws.getRow(R).values = ['S. No','Zone / Section','Area / Sub-Zone','Slot 1 — Time','Slot 2 — Time','Slot 3 — Time','Blocked Access','Poor Lighting','Remarks / Issues'];
-    styleHeaderRow(ws, R, LAST); R++;
-
-    s.zones.forEach((z,i)=>{
-      ws.getRow(R).values = [z.no, z.zone, z.area, z.slot1, z.slot2, z.slot3, z.blocked, z.poorLighting, z.remarks];
-      styleDataRow(ws, R, LAST, {band:i%2===1, leftAlignCols:[3,9]});
-      flagCell(ws, R, 7, z.blocked);
-      flagCell(ws, R, 8, z.poorLighting);
-      R++;
-    });
-    R++;
-
-    ws.getRow(R).values = ['Verified by:', s.verifiedBy || '________________', '', 'Updated by:', s.updatedBy || '________________'];
-    styleDataRow(ws, R, LAST, {bold:true}); R++;
-    ws.getRow(R).values = ['', 'Desg. Security Supervisor', '', '', 'Desg. Safety & Surveillance Officer'];
-    ws.getRow(R).eachCell(c=>{ c.font = { italic:true, size:9.5, color:{argb:'FF4A5568'} }; }); R+=2;
-  }
-
-  shiftBlock('morning','Morning');
-  shiftBlock('night','Night');
-
-  await downloadWorkbook(wb, `PTR_Sector75_${state.date}.xlsx`);
-  document.getElementById('statusMsg').textContent = 'Exported PTR for ' + fmtDisplayDate(state.date) + '.';
-}
-
-/* ---------------------------------------------------------------------
-   Init
---------------------------------------------------------------------- */
+/* ---------------- Init ---------------- */
 (async function init(){
   document.getElementById('reportDate').value = state.date;
   await loadDraft(state.date);
